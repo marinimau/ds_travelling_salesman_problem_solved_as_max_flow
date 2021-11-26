@@ -3,3 +3,4 @@ pip
 setuptools
 docplex
 numpy
+pandas
