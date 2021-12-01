@@ -25,6 +25,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 from docplex.mp.model import Model
 
+from conf import loading_params
+
 
 def create_assignment_model(name, range_nodes, costs):
     """
@@ -37,11 +39,30 @@ def create_assignment_model(name, range_nodes, costs):
     m = Model(name=name, log_output=True)
     # Decision Variable
     x = m.binary_var_matrix(range_nodes, range_nodes)
-    # Degree of each vertex
-    for i in range_nodes:
-        sum_row = m.sum(x[i, j] for j in range_nodes)
-        sum_col = m.sum(x[j, i] for j in range_nodes)
-        m.add_constraint(sum_row + sum_col == 2)
+    # Add constraint
+    add_constraints(m, x, range_nodes)
     # Objective Function
     m.minimize(m.sum(costs[i][j] * x[i, j] for j in range_nodes for i in range_nodes))
     return m
+
+
+def add_constraints(m, x, range_nodes):
+    """
+    add constraints to the model
+    :param m: the model
+    :param x: the binary var matrix
+    :param range_nodes: an iterator from o to #nodes-1
+    :return:
+    """
+    if loading_params['symmetric_costs']:
+        # Degree of each vertex
+        for i in range_nodes:
+            sum_row = m.sum(x[i, j] for j in range_nodes)
+            sum_col = m.sum(x[j, i] for j in range_nodes)
+            m.add_constraint(sum_row + sum_col == 2)
+    else:
+        # in and out Degree of each vertex
+        [m.add_constraint(m.sum(x[i, j] for j in range_nodes) == 1) for i in range_nodes]
+        [m.add_constraint(m.sum(x[i, j] for i in range_nodes) == 1) for j in range_nodes]
+        # No loop from the same node
+        [m.add_constraint(x[i, i] == 0) for i in range_nodes]
