@@ -24,6 +24,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
+import numpy as np
+
+from conf import loading_params
+
+
 def load_costs_matrix(filename):
     """
     Load the costs matrix given the filename
@@ -48,4 +53,16 @@ def load_costs_matrix(filename):
         # Start reading values
         if "C = [" in line:
             read = True
-    return costs
+    return transform_to_symmetric(costs) if loading_params['symmetric_costs'] else costs
+
+
+def transform_to_symmetric(costs, maximum=True):
+    """
+    Make matrix costs symmetric
+    :param costs: the cost matrix
+    :param maximum: a flag that indicates if we want to maintain maximum or minimum value
+    :return: the symmetric cost matrix
+    """
+    costs = np.matrix(costs).astype(int)
+    costs = np.maximum(costs, costs.transpose()) if maximum else np.minimum(costs, costs.transpose())
+    return costs.tolist()

@@ -23,25 +23,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from docplex.mp.model import Model
 
-
-def create_assignment_model(name, range_nodes, costs):
-    """
-    Create assignment model
-    :param name: the name of the model
-    :param range_nodes: the range nodes
-    :param costs: the cost
-    :return:
-    """
-    m = Model(name=name, log_output=True)
-    # Decision Variable
-    x = m.binary_var_matrix(range_nodes, range_nodes)
-    # Degree of each vertex
-    for i in range_nodes:
-        sum_row = m.sum(x[i, j] for j in range_nodes)
-        sum_col = m.sum(x[j, i] for j in range_nodes)
-        m.add_constraint(sum_row + sum_col == 2)
-    # Objective Function
-    m.minimize(m.sum(costs[i][j] * x[i, j] for j in range_nodes for i in range_nodes))
-    return m
+loading_params = {
+    'symmetric_costs': True
+}
