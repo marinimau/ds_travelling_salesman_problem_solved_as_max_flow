@@ -35,7 +35,7 @@ from utils import *
 costs = []
 
 if __name__ == '__main__':
-    costs = load_costs_matrix("dataset/br17.dat")
+    costs = load_costs_matrix("dataset/ftv55.dat")
     # Number of nodes
     nodes = len(costs)
     # Range of the nodes

@@ -25,5 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 loading_params = {
-    'symmetric_costs': True
+    'symmetric_costs': True,
+    'maintain_maximum_cost': True
 }

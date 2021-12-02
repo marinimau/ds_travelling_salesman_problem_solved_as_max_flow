@@ -56,13 +56,15 @@ def load_costs_matrix(filename):
     return transform_to_symmetric(costs) if loading_params['symmetric_costs'] else costs
 
 
-def transform_to_symmetric(costs, maximum=True):
+def transform_to_symmetric(costs):
     """
     Make matrix costs symmetric
     :param costs: the cost matrix
-    :param maximum: a flag that indicates if we want to maintain maximum or minimum value
     :return: the symmetric cost matrix
     """
     costs = np.matrix(costs).astype(int)
-    costs = np.maximum(costs, costs.transpose()) if maximum else np.minimum(costs, costs.transpose())
+    if loading_params['maintain_maximum_cost']:
+        costs = np.maximum(costs, costs.transpose())
+    else:
+        np.minimum(costs, costs.transpose())
     return costs.tolist()
