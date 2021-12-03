@@ -40,18 +40,18 @@ def create_assignment_model(name, range_nodes, costs):
     # Decision Variable
     x = m.binary_var_matrix(range_nodes, range_nodes)
     # Add constraint
-    add_constraints(m, x, range_nodes)
+    add_basic_constraints(m, x, range_nodes)
     # Objective Function
     m.minimize(m.sum(costs[i][j] * x[i, j] for j in range_nodes for i in range_nodes))
     return m
 
 
-def add_constraints(m, x, range_nodes):
+def add_basic_constraints(m, x, range_nodes):
     """
     add constraints to the model
     :param m: the model
     :param x: the binary var matrix
-    :param range_nodes: an iterator from o to #nodes-1
+    :param range_nodes: an iterator from 0 to #nodes-1
     :return:
     """
     if loading_params['symmetric_costs']:
@@ -64,3 +64,13 @@ def add_constraints(m, x, range_nodes):
         [m.add_constraint(m.sum(x[i, j] for i in range_nodes) == 1) for j in range_nodes]
         # No loop from the same node
         [m.add_constraint(x[i, i] == 0) for i in range_nodes]
+
+
+def add_no_sub_tour_constraint(m, x, range_nodes):
+    """
+    Add no sub-tour constraint
+    :param m: the model
+    :param x: the binary var matrix
+    :param range_nodes: an iterator from 0 to #nodes-1
+    :return:
+    """

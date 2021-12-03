@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 import time
 
-from create_model import *
+from model import *
 from load_dataset import *
 from subpath_finder import get_paths
 from utils import *
@@ -45,20 +45,22 @@ if __name__ == '__main__':
     m = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs)
     # Solve the model
     solution = m.solve()
+    # Add no sub-tour constraint
+    print(m.solution)
     # Print the report
     m.report()
     # Get the solution as df
     df = solution.as_df()
     # Convert the dataframe
     df = convert_dataframe_names(df, nodes)
-
     # Get al the paths
     paths = get_paths(df, nodes)
     # Until there are no sub paths left
     while len(paths) != 1:
         # Merge the sub paths
-        print("There are {} paths".format(len(paths)))
+        # print("There are {} paths".format(len(paths)))
         # merge_sub_paths(paths, costs)
+        pass
 
     # Get the final path
     path = convert_path_to_final(paths[0][0])
