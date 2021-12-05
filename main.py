@@ -42,11 +42,9 @@ if __name__ == '__main__':
     range_nodes = range(nodes)
     start = time.time()
     # Create the model
-    m = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs)
+    m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs)
     # Solve the model
     solution = m.solve()
-    # Add no sub-tour constraint
-    print(m.solution)
     # Print the report
     m.report()
     # Get the solution as df
@@ -57,10 +55,8 @@ if __name__ == '__main__':
     paths = get_paths(df, nodes)
     # Until there are no sub paths left
     while len(paths) != 1:
-        # Merge the sub paths
-        # print("There are {} paths".format(len(paths)))
-        # merge_sub_paths(paths, costs)
-        pass
+        # Add no sub-tour constraint
+        add_no_sub_tour_constraint(m, x, paths.pop(0), nodes)
 
     # Get the final path
     path = convert_path_to_final(paths[0][0])
