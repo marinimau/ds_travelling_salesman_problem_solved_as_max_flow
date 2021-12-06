@@ -30,7 +30,6 @@ from load_dataset import *
 from subpath_finder import get_paths
 from utils import *
 
-
 # Costs Matrix
 costs = []
 
