@@ -27,7 +27,7 @@ import time
 
 import conf
 from maximum_flow import MaximumFlowSolver
-from model import *
+from assignment import *
 from load_dataset import *
 from subpath_finder import get_paths
 from utils import *
@@ -36,12 +36,12 @@ from utils import *
 costs = []
 
 if __name__ == '__main__':
-    costs = load_costs_matrix("dataset/br17.dat")
+    costs = load_costs_matrix("dataset/basic.dat")
     # Number of nodes
     nodes = len(costs)
     # Range of the nodes
     range_nodes = range(nodes)
-    MaximumFlowSolver.t_nodes = list(range_nodes)[1:]
+    MaximumFlowSolver.t_nodes = list(range_nodes)[5:]
     solved = False
     paths = None
     start = time.time()

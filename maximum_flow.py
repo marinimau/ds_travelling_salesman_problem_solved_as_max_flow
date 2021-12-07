@@ -47,6 +47,7 @@ class MaximumFlowSolver:
         self.__s = s
         self.__t = MaximumFlowSolver.t_nodes.pop(0)
         self.__crate_max_flow_model(range_nodes)
+        self.__set_transhipment_for_all_nodes(range_nodes)
         self.__set_capacity_constraints(solution_df)
 
     def __set_capacity_constraints(self, solution_df):
@@ -58,7 +59,19 @@ class MaximumFlowSolver:
         for _, r in solution_df.iterrows():
             if conf.VERBOSE:
                 print('start: ' + str(r['start']) + ', end: ' + str(r['end']) + ', value: ' + str(r['value']))
-            self.__model.add_constraint(self.__x[r['start'], r['end']] <= r['value'] + random.randint(0, 6))
+            self.__model.add_constraint(self.__x[r['start'], r['end']] <= r['value'])
+
+    def __set_transhipment_for_all_nodes(self, range_nodes):
+        """
+        Set b(v) = 0 for all v in V
+        :param range_nodes: an iterator from 0 to #nodes-1
+        :return:
+        """
+        [self.__model.add_constraint(self.__model.sum([
+            - self.__model.sum(self.__x[j, i] if i != j else 0 for j in range_nodes),
+            self.__model.sum(self.__x[i, j] if i != j else 0 for j in range_nodes)
+        ]) == 0) for i in range_nodes]
+        [self.__model.add_constraint(self.__x[i, i] == 0) for i in range_nodes]
 
     def __crate_max_flow_model(self, range_nodes):
         """

@@ -54,15 +54,8 @@ def add_basic_constraints(m, x, range_nodes):
     :param range_nodes: an iterator from 0 to #nodes-1
     :return:
     """
-    if loading_params['symmetric_costs']:
-        # Degree of each vertex
-        [m.add_constraint(m.sum(x[i, j] for j in range_nodes) == 1) for i in range_nodes]
-        [m.add_constraint(m.sum(x[i, j] for i in range_nodes) == 1) for j in range_nodes]
-    else:
-        # in and out Degree of each vertex
-        [m.add_constraint(m.sum(x[i, j] for j in range_nodes) == 1) for i in range_nodes]
-        [m.add_constraint(m.sum(x[i, j] for i in range_nodes) == 1) for j in range_nodes]
-        # No loop from the same node
-        [m.add_constraint(x[i, i] == 0) for i in range_nodes]
-
-
+    # in and out Degree of each vertex
+    [m.add_constraint(m.sum(x[i, j] for j in range_nodes) == 1) for i in range_nodes]
+    [m.add_constraint(m.sum(x[i, j] for i in range_nodes) == 1) for j in range_nodes]
+    # No loop from the same node
+    [m.add_constraint(x[i, i] == 0) for i in range_nodes]
