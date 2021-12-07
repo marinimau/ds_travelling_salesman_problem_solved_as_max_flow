@@ -48,13 +48,12 @@ if __name__ == '__main__':
     constraints = []
     while not solved:
         # Create the model
-        m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs)
-        # add second step constraints
-        add_second_step_constraints(m, x, constraints)
+        m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs, constraints)
         # Solve the model
         solution = m.solve()
-        # Print the report
-        m.report()
+        if conf.VERBOSE:
+            m.report()
+            print(solution.solve_status)
         # Get the solution as df
         df = solution.as_df()
         # Get al the paths
@@ -69,7 +68,7 @@ if __name__ == '__main__':
             solution = max_flow.solve_max_flow()
             # 3. Get constraint from max flow
             s, t = max_flow.export_constraint()
-            if s is not None and False:
+            if s is not None:
                 constraints.append([s, t])
             # 4. add constraint to initial problem
         else:

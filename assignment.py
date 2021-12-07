@@ -25,22 +25,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 from docplex.mp.model import Model
 
-from conf import loading_params
+import conf
 
 
-def create_assignment_model(name, range_nodes, costs):
+def create_assignment_model(name, range_nodes, costs, second_step_constraints):
     """
     Create assignment model
     :param name: the name of the model
     :param range_nodes: the range nodes
+    :param second_step_constraints
     :param costs: the cost
     :return:
     """
-    m = Model(name=name, log_output=True)
+    m = Model(name=name, log_output=conf.VERBOSE)
     # Decision Variable
     x = m.continuous_var_matrix(range_nodes, range_nodes)
-    # Add constraint
+    # Add basic constraint
     add_basic_constraints(m, x, range_nodes)
+    # Add second step constraints
+    add_second_step_constraints(m, x, second_step_constraints)
     # Objective Function
     m.minimize(m.sum(costs[i][j] * x[i, j] for j in range_nodes for i in range_nodes))
     return m, x
@@ -70,4 +73,5 @@ def add_second_step_constraints(m, x, constraints):
     :return:
     """
     for s, v in constraints:
-        m.add_constraint(x[s, v] >= 2)
+        m.add_constraint(x[s, v] >= 1)
+        m.add_constraint(x[v, s] >= 1)

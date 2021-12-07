@@ -80,7 +80,7 @@ class MaximumFlowSolver:
         :param range_nodes: an iterator from 0 to #nodes-1
         :return:
         """
-        self.__model = Model(name='max_flow_from_' + str(self.__s) + '_to_' + str(self.__t), log_output=True)
+        self.__model = Model(name='max_flow_from_' + str(self.__s) + '_to_' + str(self.__t), log_output=conf.VERBOSE)
         self.__x = self.__model.continuous_var_matrix(range_nodes, range_nodes)
         if conf.VERBOSE:
             print(self.__model.name + '\ts: ' + str(self.__s) + '\tt: ' + str(self.__t))
@@ -105,8 +105,8 @@ class MaximumFlowSolver:
             print(self.__model.solve_status)
         if self.__model.solve_status == JobSolveStatus.OPTIMAL_SOLUTION:
             if self.__model.solution.objective_value < 2:
-                # add constraint
                 return self.__s, self.__t
         else:
+            # reinsert the node for future use (if required)
             MaximumFlowSolver.t_nodes.append(self.__t)
             return None, None
