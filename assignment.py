@@ -59,3 +59,15 @@ def add_basic_constraints(m, x, range_nodes):
     [m.add_constraint(m.sum(x[i, j] for i in range_nodes) == 1) for j in range_nodes]
     # No loop from the same node
     [m.add_constraint(x[i, i] == 0) for i in range_nodes]
+
+
+def add_second_step_constraints(m, x, constraints):
+    """
+    Add second step constraints
+    :param m: the model
+    :param x: the binary var matrix
+    :param constraints: a list containing the constraints
+    :return:
+    """
+    for s, v in constraints:
+        m.add_constraint(x[s, v] >= 2)

@@ -45,17 +45,18 @@ if __name__ == '__main__':
     solved = False
     paths = None
     start = time.time()
-    # Create the model
-    m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs)
+    constraints = []
     while not solved:
+        # Create the model
+        m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs)
+        # add second step constraints
+        add_second_step_constraints(m, x, constraints)
         # Solve the model
         solution = m.solve()
         # Print the report
         m.report()
         # Get the solution as df
         df = solution.as_df()
-        # Convert the dataframe
-        df = convert_dataframe_names(df, nodes)
         # Get al the paths
         paths = get_paths(df, nodes)
         # Until there are no sub paths left
@@ -67,9 +68,13 @@ if __name__ == '__main__':
             # 2. Solve max flow using capacities
             solution = max_flow.solve_max_flow()
             # 3. Get constraint from max flow
-
+            s, t = max_flow.export_constraint()
+            if s is not None:
+                constraints.append([s, t])
             # 4. add constraint to initial problem
-            break # remove this
+        else:
+            solved = True
+
     if paths is not None:
         # Get the final path
         path = convert_path_to_final(paths[0][0])

@@ -19,6 +19,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 """
+from utils import convert_dataframe_names
 
 
 def get_subsequent_node(visited):
@@ -33,7 +34,7 @@ def get_subsequent_node(visited):
     return -1
 
 
-def get_paths(df, nodes):
+def __get_paths(df, nodes):
     """
     return all the sub paths
     :param df: a Pandas dataframe that contains the solution of the model
@@ -71,3 +72,16 @@ def get_paths(df, nodes):
             # Get the subsequent node not visited
             subsequent = get_subsequent_node(visited)
     return paths
+
+
+def get_paths(df, nodes):
+    """
+    Get paths
+    :param df: the current solution as df
+    :param nodes: the number of the nodes
+    :return: a list containing paths
+    """
+    # Convert the dataframe
+    df = convert_dataframe_names(df, nodes)
+    # Get al the paths
+    return __get_paths(df, nodes)
