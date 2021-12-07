@@ -38,7 +38,7 @@ def create_assignment_model(name, range_nodes, costs):
     """
     m = Model(name=name, log_output=True)
     # Decision Variable
-    x = m.binary_var_matrix(range_nodes, range_nodes)
+    x = m.continuous_var_matrix(range_nodes, range_nodes)
     # Add constraint
     add_basic_constraints(m, x, range_nodes)
     # Objective Function
@@ -66,16 +66,3 @@ def add_basic_constraints(m, x, range_nodes):
         [m.add_constraint(x[i, i] == 0) for i in range_nodes]
 
 
-def add_no_sub_tour_constraint(m, x, paths, nodes):
-    """
-    Add no sub-tour constraint
-    :param m: the model
-    :param x: the binary var matrix
-    :param paths: a list of paths
-    :param nodes: the number of nodes
-    :return:
-    """
-    print(paths)
-    [m.add_constraint(m.sum(x[i, j] for j in range(nodes)) == 1) for i in range(nodes)]
-    # [m.add_constraint(m.sum(x[i, j] for node in p) >= 3) for p in paths]
-    # len(path) >= 3 and len(paths) <= #nodes - 1

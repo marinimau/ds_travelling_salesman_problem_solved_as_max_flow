@@ -25,6 +25,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 import time
 
+import conf
+from maximum_flow import MaximumFlowSolver
 from model import *
 from load_dataset import *
 from subpath_finder import get_paths
@@ -34,38 +36,50 @@ from utils import *
 costs = []
 
 if __name__ == '__main__':
-    costs = load_costs_matrix("dataset/ftv55.dat")
+    costs = load_costs_matrix("dataset/br17.dat")
     # Number of nodes
     nodes = len(costs)
     # Range of the nodes
     range_nodes = range(nodes)
+    MaximumFlowSolver.t_nodes = list(range_nodes)[1:]
+    solved = False
+    paths = None
     start = time.time()
     # Create the model
     m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs)
-    # Solve the model
-    solution = m.solve()
-    # Print the report
-    m.report()
-    # Get the solution as df
-    df = solution.as_df()
-    # Convert the dataframe
-    df = convert_dataframe_names(df, nodes)
-    # Get al the paths
-    paths = get_paths(df, nodes)
-    # Until there are no sub paths left
-    while len(paths) != 1:
-        # Add no sub-tour constraint
-        add_no_sub_tour_constraint(m, x, paths.pop(0), nodes)
+    while not solved:
+        # Solve the model
+        solution = m.solve()
+        # Print the report
+        m.report()
+        # Get the solution as df
+        df = solution.as_df()
+        # Convert the dataframe
+        df = convert_dataframe_names(df, nodes)
+        # Get al the paths
+        paths = get_paths(df, nodes)
+        # Until there are no sub paths left
+        if len(paths) != 1:
+            if conf.VERBOSE:
+                print('#paths: ' + str(len(paths)))
+            # 1. Get capacities from continuous relaxing solution
+            max_flow = MaximumFlowSolver(df, range_nodes, 0)
+            # 2. Solve max flow using capacities
+            solution = max_flow.solve_max_flow()
+            # 3. Get constraint from max flow
 
-    # Get the final path
-    path = convert_path_to_final(paths[0][0])
-    # Convert the path to the decision variable matrix
-    matrix = convert_path_to_matrix(path, nodes)
-    # Convert the cost list of list to a numpy matrix
-    costs_matrix = numpy.array(costs)
-    # Multiply and sum the result
-    result = matrix * costs_matrix
-    print(result.sum())
-    end = time.time()
-    elapsed = end - start
-    print(elapsed)
+            # 4. add constraint to initial problem
+            break # remove this
+    if paths is not None:
+        # Get the final path
+        path = convert_path_to_final(paths[0][0])
+        # Convert the path to the decision variable matrix
+        matrix = convert_path_to_matrix(path, nodes)
+        # Convert the cost list of list to a numpy matrix
+        costs_matrix = numpy.array(costs)
+        # Multiply and sum the result
+        result = matrix * costs_matrix
+        end = time.time()
+        elapsed = end - start
+        if conf.VERBOSE:
+            print('cost: ' + str(result.sum()) + '\telapsed time: ' + str(elapsed))

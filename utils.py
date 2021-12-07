@@ -96,11 +96,25 @@ def convert_path_to_final(path):
     :param path: The path list
     :return: A list with the path in final form
     """
-    pass
-    '''
     p1, p2 = split_path(path, 0)
     p2 = [0] + p2
     return p2 + p1
-    '''
+
+
+def split_path(path, val):
+    """
+    Split the path when it encounter a certain value
+    :param path: the path list
+    :param val: the value
+    :return: two sub paths -> sub_path1 from start to value / sub_path2 form after the value to the end
+    """
+    sub_path1 = []
+    sub_path2 = path[:-1]
+    for i in path:
+        sub_path1.append(i)
+        sub_path2.remove(i)
+        if i == val:
+            break
+    return sub_path1, sub_path2
 
 
