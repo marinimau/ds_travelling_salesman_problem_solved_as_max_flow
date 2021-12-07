@@ -41,7 +41,7 @@ if __name__ == '__main__':
     nodes = len(costs)
     # Range of the nodes
     range_nodes = range(nodes)
-    MaximumFlowSolver.t_nodes = list(range_nodes)[5:]
+    MaximumFlowSolver.t_nodes = list(range_nodes)[1:]
     solved = False
     paths = None
     start = time.time()
