@@ -69,7 +69,7 @@ if __name__ == '__main__':
             solution = max_flow.solve_max_flow()
             # 3. Get constraint from max flow
             s, t = max_flow.export_constraint()
-            if s is not None:
+            if s is not None and False:
                 constraints.append([s, t])
             # 4. add constraint to initial problem
         else:

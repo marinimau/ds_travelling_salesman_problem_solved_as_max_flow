@@ -107,4 +107,6 @@ class MaximumFlowSolver:
             if self.__model.solution.objective_value < 2:
                 # add constraint
                 return self.__s, self.__t
-        return None, None
+        else:
+            MaximumFlowSolver.t_nodes.append(self.__t)
+            return None, None
