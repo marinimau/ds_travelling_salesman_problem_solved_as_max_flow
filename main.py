@@ -35,7 +35,7 @@ from utils import *
 costs = []
 
 if __name__ == '__main__':
-    costs = load_costs_matrix("dataset/basic.dat")
+    costs = load_costs_matrix("dataset/br17.dat")
     # Number of nodes
     nodes = len(costs)
     # Range of the nodes
@@ -45,33 +45,40 @@ if __name__ == '__main__':
     paths = None
     start = time.time()
     constraints = []
+    t = 0
     while not solved:
         # Create the model
         m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs, constraints)
         # Solve the model
         solution = m.solve()
-        if conf.VERBOSE:
-            m.report()
-            print(solution.solve_status)
-        # Get the solution as df
-        df = solution.as_df()
-        # Get al the paths
-        paths = get_paths(df, nodes)
-        # Until there are no sub paths left
-        if len(paths) > 1:
+        if solution is not None:
             if conf.VERBOSE:
-                print('#paths: ' + str(len(paths)))
-            # 1. Get capacities from continuous relaxing solution
-            max_flow = MaximumFlowSolver(df, range_nodes, 0)
-            # 2. Solve max flow using capacities
-            solution = max_flow.solve_max_flow()
-            # 3. Get constraint from max flow
-            s, t = max_flow.export_constraint()
-            if s is not None:
-                constraints.append([s, t])
-            # 4. add constraint to initial problem
+                m.report()
+                print(solution.solve_status)
+            # Get the solution as df
+            df = solution.as_df()
+            # Get al the paths
+            paths = get_paths(df, nodes)
+            # Until there are no sub paths left
+            if len(paths) > 2:
+                if conf.VERBOSE:
+                    print('#paths: ' + str(len(paths)))
+                # 1. Get capacities from continuous relaxing solution
+                max_flow = MaximumFlowSolver(df, range_nodes, 0)
+                # 2. Solve max flow using capacities
+                solution = max_flow.solve_max_flow()
+                # 3. Get constraint from max flow
+                s, t = max_flow.export_constraint()
+                if s is not None:
+                    # 4. add constraint to initial problem
+                    constraints.append([s, t])
+
+            else:
+                solved = True
         else:
-            solved = True
+            # delete constraint
+            constraints = constraints[:-1]
+    print(paths)
     if paths is not None:
         # Get the final path
         path = convert_path_to_final(paths[0][0])
