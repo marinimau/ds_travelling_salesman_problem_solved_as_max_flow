@@ -1,6 +1,7 @@
 cplex
 pip
 setuptools
-docplex
-numpy
+docplex~=2.18.200
+numpy~=1.21.4
 pandas
+docloud~=1.0.375

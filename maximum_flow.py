@@ -22,7 +22,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 """
-import random
 
 from docloud.status import JobSolveStatus
 from docplex.mp.model import Model
@@ -49,18 +48,34 @@ class MaximumFlowSolver:
         self.__t = MaximumFlowSolver.t_nodes.pop(0)
         self.__crate_max_flow_model(range_nodes)
         self.__set_transhipment_for_all_nodes(range_nodes)
-        self.__set_capacity_constraints(solution_df)
+        self.__set_capacity_constraints(range_nodes, solution_df)
 
-    def __set_capacity_constraints(self, solution_df):
+    def __set_capacity_constraints(self, range_nodes, solution_df):
         """
-        Get capacities from the continuous relaxation solution and set it as constraints of the current model
-        :param solution_df: the solution of the continuous relaxation (pd dataframe)
+        Set capacity for each edge
+        :param range_nodes:  an iterator from 0 to #nodes-1
+        :param solution_df:  the solution of the continuous relaxation (pd dataframe)
         :return:
         """
-        for _, r in solution_df.iterrows():
-            if conf.VERBOSE:
-                print('start: ' + str(r['start']) + ', end: ' + str(r['end']) + ', value: ' + str(r['value']))
-            self.__model.add_constraint(self.__x[r['start'], r['end']] <= r['value'])
+        for i in range_nodes:
+            for j in range_nodes:
+                value = self.__get_capacity_constraint(i, j, solution_df)
+                if conf.VERBOSE:
+                    print('start: ' + str(i) + ', end: ' + str(j) + ', value: ' + str(value))
+                self.__model.add_constraint(self.__x[i, j] <= value)
+
+    @staticmethod
+    def __get_capacity_constraint(start, end, solution_df):
+        """
+        Get capacities from the continuous relaxation solution and set it as constraints of the current model
+        :param start: the start node
+        :param end: the end node
+        :param solution_df: the solution of the continuous relaxation (pd dataframe)
+        :return: the value for capacity
+        """
+        value = solution_df.loc[(solution_df['start'] == start) & (solution_df['end'] == end)]['value'].tolist()
+        value.append(0)
+        return value[0]
 
     def __set_transhipment_for_all_nodes(self, range_nodes):
         """
@@ -103,10 +118,10 @@ class MaximumFlowSolver:
         """
         if conf.VERBOSE:
             print(self.__model.solve_status)
-        if self.__model.solve_status == JobSolveStatus.OPTIMAL_SOLUTION:
-            if self.__model.solution.objective_value < 2:
-                return self.__s, self.__t
+        if self.__model.solve_status == JobSolveStatus.INFEASIBLE_OR_UNBOUNDED_SOLUTION:
+            raise Exception("INFEASIBLE_OR_UNBOUNDED_SOLUTION")
         else:
-            # reinsert the node for future use (if required)
-            MaximumFlowSolver.t_nodes.append(self.__t)
-            return None, None
+            if self.__model.solution.objective_value < 1:
+                return self.__s, self.__t
+        MaximumFlowSolver.t_nodes.append(self.__t)
+        return None, None
