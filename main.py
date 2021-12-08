@@ -25,7 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 import time
 
-import conf
 from maximum_flow import MaximumFlowSolver
 from assignment import *
 from load_dataset import *
@@ -36,7 +35,7 @@ from utils import *
 costs = []
 
 if __name__ == '__main__':
-    costs = load_costs_matrix("dataset/br17.dat")
+    costs = load_costs_matrix("dataset/basic.dat")
     # Number of nodes
     nodes = len(costs)
     # Range of the nodes
