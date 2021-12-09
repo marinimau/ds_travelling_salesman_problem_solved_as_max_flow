@@ -65,7 +65,6 @@ class MaximumFlowSolver:
                     print('start: ' + str(i) + ', end: ' + str(j) + ', value: ' + str(value))
                 self.__model.add_constraint(self.__x[i, j] <= value)
                 self.__model.add_constraint(self.__x[j, i] <= value)
-                print(value)
 
     @staticmethod
     def __get_capacity_constraint(start, end, solution_df):
@@ -125,6 +124,8 @@ class MaximumFlowSolver:
         if self.__model.solve_status == JobSolveStatus.INFEASIBLE_OR_UNBOUNDED_SOLUTION:
             raise Exception("INFEASIBLE_OR_UNBOUNDED_SOLUTION")
         else:
-            if self.__model.solution.objective_value < 2:
+            if self.__model.solution.objective_value < 1:
                 return self.__s, self.__t
+            else:
+                print('s: ' + str(self.__s) + ', t: ' + str(self.__t) + ', solution: ' + str(self.__model.solution.objective_value))
         return None, None
