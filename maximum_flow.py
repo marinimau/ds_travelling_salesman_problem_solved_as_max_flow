@@ -86,7 +86,7 @@ class MaximumFlowSolver:
         :return:
         """
         [self.__model.add_constraint(self.__model.sum([
-            - self.__model.sum(self.__x[j, i] if i != j else 0 for j in range_nodes),
+            - (self.__model.sum(self.__x[j, i] if i != j else 0 for j in range_nodes)),
             self.__model.sum(self.__x[i, j] if i != j else 0 for j in range_nodes)
         ]) == 0) for i in range_nodes]
         [self.__model.add_constraint(self.__x[i, i] == 0) for i in range_nodes]
