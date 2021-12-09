@@ -29,4 +29,4 @@ loading_params = {
     'maintain_maximum_cost': True
 }
 
-VERBOSE = False
+VERBOSE = True

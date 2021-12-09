@@ -76,3 +76,17 @@ def add_second_step_constraints(m, x, constraints):
     """
     for s, v in constraints:
         m.add_constraint(m.sum([x[s, v], x[v, s]]) >= 1)
+
+
+def add_cut_constraint(m, x, paths):
+    """
+    Add cut constraints
+    :param m: the model
+    :param x: the binary var matrix
+    :param paths:
+    :return:
+    """
+    p1 = paths[0][0]
+    p2 = paths[1][0]
+    m.add_constraint(m.sum([x[i, j] for i in p1 for j in p2]) >= 2)
+

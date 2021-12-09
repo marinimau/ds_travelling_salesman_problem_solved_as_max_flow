@@ -46,9 +46,11 @@ if __name__ == '__main__':
     start = time.time()
     constraints = []
     t = 0
+    edit = False
     while not solved:
-        # Create the model
-        m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs, constraints)
+        if not edit:
+            # Create the model
+            m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs, constraints)
         # Solve the model
         solution = m.solve()
         if solution is not None:
@@ -61,6 +63,7 @@ if __name__ == '__main__':
             paths = get_paths(df, nodes)
             # Until there are no sub paths left
             if len(paths) > 1:
+                print('#paths: ' + str(len(paths)))
                 if conf.VERBOSE:
                     print('#paths: ' + str(len(paths)))
                 # 1. Get capacities from continuous relaxing solution
@@ -69,10 +72,13 @@ if __name__ == '__main__':
                 solution = max_flow.solve_max_flow()
                 # 3. Get constraint from max flow
                 s, t = max_flow.export_constraint()
-                if s is not None:
+                if s is not None and len(paths) > 2:
                     # 4. add constraint to initial problem
                     constraints.append([s, t])
-
+                if len(paths) == 2:
+                    print(paths)
+                    add_cut_constraint(m, x, paths)
+                    edit = True
             else:
                 solved = True
         else:
