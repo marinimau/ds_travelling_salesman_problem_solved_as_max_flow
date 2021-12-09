@@ -59,10 +59,13 @@ class MaximumFlowSolver:
         """
         for i in range_nodes:
             for j in range_nodes:
-                value = self.__get_capacity_constraint(i, j, solution_df)
+                value = max(self.__get_capacity_constraint(i, j, solution_df),
+                            self.__get_capacity_constraint(j, i, solution_df))
                 if conf.VERBOSE:
                     print('start: ' + str(i) + ', end: ' + str(j) + ', value: ' + str(value))
                 self.__model.add_constraint(self.__x[i, j] <= value)
+                self.__model.add_constraint(self.__x[j, i] <= value)
+                print(value)
 
     @staticmethod
     def __get_capacity_constraint(start, end, solution_df):
@@ -74,7 +77,7 @@ class MaximumFlowSolver:
         :return: the value for capacity
         """
         value = solution_df.loc[(solution_df['start'] == start) & (solution_df['end'] == end)]['value'].tolist()
-        value.append(0)
+        value.append(0.5)
         return value[0]
 
     def __set_transhipment_for_all_nodes(self, range_nodes):
@@ -122,6 +125,6 @@ class MaximumFlowSolver:
         if self.__model.solve_status == JobSolveStatus.INFEASIBLE_OR_UNBOUNDED_SOLUTION:
             raise Exception("INFEASIBLE_OR_UNBOUNDED_SOLUTION")
         else:
-            if self.__model.solution.objective_value < 1:
+            if self.__model.solution.objective_value < 2:
                 return self.__s, self.__t
         return None, None

@@ -35,7 +35,7 @@ from utils import *
 costs = []
 
 if __name__ == '__main__':
-    costs = load_costs_matrix("dataset/br17.dat")
+    costs = load_costs_matrix("dataset/basic.dat")
     # Number of nodes
     nodes = len(costs)
     # Range of the nodes
@@ -60,7 +60,7 @@ if __name__ == '__main__':
             # Get al the paths
             paths = get_paths(df, nodes)
             # Until there are no sub paths left
-            if len(paths) > 2:
+            if len(paths) > 1:
                 if conf.VERBOSE:
                     print('#paths: ' + str(len(paths)))
                 # 1. Get capacities from continuous relaxing solution
