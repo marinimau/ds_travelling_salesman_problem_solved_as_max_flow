@@ -132,3 +132,14 @@ def find_path_by_node(paths, node):
                 return nodes
     return None
 
+
+def print_formatted_path(path):
+    """
+    print formated path
+    :param path: the final path
+    :return:
+    """
+    path = path[0][0]
+    print([str(node+1) for node in path])
+
+

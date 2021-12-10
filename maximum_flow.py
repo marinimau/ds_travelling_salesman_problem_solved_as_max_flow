@@ -78,7 +78,7 @@ class MaximumFlowSolver:
         :return: the value for capacity
         """
         value = solution_df.loc[(solution_df['start'] == start) & (solution_df['end'] == end)]['value'].tolist()
-        value.append(0.5)
+        value.append(0)
         return value[0]
 
     def __set_transhipment_for_all_nodes(self, range_nodes):

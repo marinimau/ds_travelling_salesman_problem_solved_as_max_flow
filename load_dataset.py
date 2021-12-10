@@ -53,6 +53,7 @@ def load_costs_matrix(filename):
         # Start reading values
         if "C = [" in line:
             read = True
+    print(costs)
     return transform_to_symmetric(costs) if loading_params['symmetric_costs'] else costs
 
 

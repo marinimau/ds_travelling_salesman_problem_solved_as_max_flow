@@ -38,7 +38,7 @@ from utils import *
 costs = []
 
 if __name__ == '__main__':
-    costs = load_costs_matrix("dataset/basic.dat")
+    costs = load_costs_matrix("dataset/fri26.dat")
     # Number of nodes
     nodes = len(costs)
     # Range of the nodes
@@ -53,8 +53,6 @@ if __name__ == '__main__':
     m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs)
 
     while True:
-        # add second step constraints
-        add_cut_constraint(m, x, paths, second_step_constraints)
         # Solve the model
         solution = m.solve()
         if conf.VERBOSE:
@@ -79,6 +77,8 @@ if __name__ == '__main__':
         s, t = max_flow.export_constraint_easy(paths)
         if s is not None and t is not None:
             second_step_constraints.append([s, t])
+            # add second step constraints
+            add_cut_constraint(m, x, paths, [[s, t]])
 
     if paths is not None:
         # Get the final path
@@ -93,3 +93,4 @@ if __name__ == '__main__':
         elapsed = end - start
         if conf.VERBOSE:
             print('cost: ' + str(result.sum()) + '\telapsed time: ' + str(elapsed))
+            print_formatted_path(paths)
