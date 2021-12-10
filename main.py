@@ -38,7 +38,7 @@ from utils import *
 costs = []
 
 if __name__ == '__main__':
-    costs = load_costs_matrix("dataset/fri26.dat")
+    costs = load_costs_matrix("dataset/gr17.dat")
     # Number of nodes
     nodes = len(costs)
     # Range of the nodes
@@ -66,9 +66,6 @@ if __name__ == '__main__':
         if conf.VERBOSE:
             print('#paths: ' + str(len(paths)))
             print(paths)
-        # check len paths
-        if len_paths == 1:
-            break
         # 1. Get capacities from continuous relaxing solution
         max_flow = MaximumFlowSolver(df, range_nodes, 0)
         # 2. Solve max flow using capacities
@@ -79,6 +76,9 @@ if __name__ == '__main__':
             second_step_constraints.append([s, t])
             # add second step constraints
             add_cut_constraint(m, x, paths, [[s, t]])
+        # check len paths
+        if len_paths == 1:
+            break
 
     if paths is not None:
         # Get the final path
