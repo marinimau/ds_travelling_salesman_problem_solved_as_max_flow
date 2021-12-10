@@ -25,66 +25,69 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 import time
 
+import docplex
+
 from maximum_flow import MaximumFlowSolver
 from assignment import *
 from load_dataset import *
 from subpath_finder import get_paths
 from utils import *
 
+
 # Costs Matrix
 costs = []
 
 if __name__ == '__main__':
-    costs = load_costs_matrix("dataset/basic.dat")
+    costs = load_costs_matrix("dataset/symmetric.dat")
     # Number of nodes
     nodes = len(costs)
     # Range of the nodes
     range_nodes = range(nodes)
     MaximumFlowSolver.t_nodes = list(range_nodes)[1:]
-    solved = False
-    paths = None
     start = time.time()
-    constraints = []
-    t = 0
-    edit = False
-    while not solved:
-        if not edit:
-            # Create the model
-            m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs, constraints)
+    len_paths = 999
+    paths = None
+    second_step_constraints = []
+
+    # Create the model
+    m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs)
+
+    while True:
+
+        # add second step constraints
+        add_cut_constraint(m, x, paths, second_step_constraints)
+
         # Solve the model
         solution = m.solve()
-        if solution is not None:
-            if conf.VERBOSE:
-                m.report()
-                print(solution.solve_status)
-            # Get the solution as df
-            df = solution.as_df()
-            # Get al the paths
-            paths = get_paths(df, nodes)
-            # Until there are no sub paths left
-            if len(paths) > 1:
-                print('#paths: ' + str(len(paths)))
-                if conf.VERBOSE:
-                    print('#paths: ' + str(len(paths)))
-                # 1. Get capacities from continuous relaxing solution
-                max_flow = MaximumFlowSolver(df, range_nodes, 0)
-                # 2. Solve max flow using capacities
-                solution = max_flow.solve_max_flow()
-                # 3. Get constraint from max flow
-                s, t = max_flow.export_constraint()
-                if s is not None and len(paths) > 2:
-                    # 4. add constraint to initial problem
-                    constraints.append([s, t])
-                if len(paths) == 2:
-                    print(paths)
-                    add_cut_constraint(m, x, paths)
-                    edit = True
-            else:
-                solved = True
-        else:
-            # delete constraint
-            constraints = constraints[:-1]
-    print(paths)
+
+        if conf.VERBOSE:
+            m.report()
+            print(solution.solve_status)
+
+        # Get the solution as df
+        df = solution.as_df()
+
+        # Get al the paths
+        paths = get_paths(df, nodes)
+        len_paths = len(paths)
+
+        if conf.VERBOSE:
+            print('#paths: ' + str(len(paths)))
+
+        print(paths)
+
+        if len_paths == 1:
+            break
+
+        # 1. Get capacities from continuous relaxing solution
+        max_flow = MaximumFlowSolver(df, range_nodes, 0)
+        # 2. Solve max flow using capacities
+        max_flow.solve_max_flow()
+        # 3. Get constraint from max flow
+        s, t = max_flow.export_constraint_easy(paths)
+        if s is not None and t is not None:
+            second_step_constraints.append([s, t])
+
     if paths is not None:
         # Get the final path
         path = convert_path_to_final(paths[0][0])

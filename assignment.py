@@ -26,24 +26,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 from docplex.mp.model import Model
 
 import conf
+from utils import find_path_by_node
 
 
-def create_assignment_model(name, range_nodes, costs, second_step_constraints):
+def create_assignment_model(name, range_nodes, costs):
     """
     Create assignment model
     :param name: the name of the model
     :param range_nodes: the range nodes
-    :param second_step_constraints
     :param costs: the cost
     :return:
     """
     m = Model(name=name, log_output=conf.VERBOSE)
     # Decision Variable
-    x = m.continuous_var_matrix(range_nodes, range_nodes)
+    x = m.binary_var_matrix(range_nodes, range_nodes)
     # Add basic constraint
     add_basic_constraints(m, x, range_nodes)
-    # Add second step constraints
-    add_second_step_constraints(m, x, second_step_constraints)
     # Objective Function
     m.minimize(m.sum(costs[i][j] * x[i, j] for j in range_nodes for i in range_nodes))
     return m, x
@@ -60,33 +58,24 @@ def add_basic_constraints(m, x, range_nodes):
     # in and out Degree of each vertex
     [m.add_constraint(m.sum(x[i, j] for j in range_nodes) == 1) for i in range_nodes]
     [m.add_constraint(m.sum(x[i, j] for i in range_nodes) == 1) for j in range_nodes]
-    # delete subtour with less of 3 nodes
-    #[m.add_constraint(m.sum([x[i, j], x[j, i]]) <= 1) for j in range_nodes for i in range_nodes]
+    # delete sub-tour with less of 3 nodes
+    # [m.add_constraint(m.sum([x[i, j], x[j, i]]) <= 1) for j in range_nodes for i in range_nodes]
     # No loop from the same node
     [m.add_constraint(x[i, i] == 0) for i in range_nodes]
 
 
-def add_second_step_constraints(m, x, constraints):
-    """
-    Add second step constraints
-    :param m: the model
-    :param x: the binary var matrix
-    :param constraints: a list containing the constraints
-    :return:
-    """
-    for s, v in constraints:
-        m.add_constraint(m.sum([x[s, v], x[v, s]]) >= 1)
-
-
-def add_cut_constraint(m, x, paths):
+def add_cut_constraint(m, x, paths, constraints):
     """
     Add cut constraints
     :param m: the model
     :param x: the binary var matrix
-    :param paths:
+    :param paths: the path list
+    :param constraints: a constraints list
     :return:
     """
-    p1 = paths[0][0]
-    p2 = paths[1][0]
-    m.add_constraint(m.sum([x[i, j] for i in p1 for j in p2]) >= 2)
-
+    for s, t in constraints:
+        if s is not None and t is not None:
+            p1 = find_path_by_node(paths, s)
+            p2 = find_path_by_node(paths, t)
+            m.add_constraint(m.sum([m.sum([x[i, j], x[j, i]]) for i in p1 for j in p2]) >= 2)
+            # m.add_constraint(m.sum([x[i, j] for i in p1 for j in p2]) >= 2)

@@ -118,3 +118,17 @@ def split_path(path, val):
     return sub_path1, sub_path2
 
 
+def find_path_by_node(paths, node):
+    """
+    Find a path by node
+    :param paths: the path list
+    :param node: the given node
+    :return: the path of the node
+    """
+    for i in range(len(paths)):
+        nodes = paths[i][0]
+        for n in nodes:
+            if n == node:
+                return nodes
+    return None
+
