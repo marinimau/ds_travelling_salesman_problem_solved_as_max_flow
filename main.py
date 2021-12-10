@@ -38,7 +38,7 @@ from utils import *
 costs = []
 
 if __name__ == '__main__':
-    costs = load_costs_matrix("dataset/symmetric.dat")
+    costs = load_costs_matrix("dataset/basic.dat")
     # Number of nodes
     nodes = len(costs)
     # Range of the nodes
@@ -53,32 +53,24 @@ if __name__ == '__main__':
     m, x = create_assignment_model('tsp_continuous_relaxing', range_nodes, costs)
 
     while True:
-
         # add second step constraints
         add_cut_constraint(m, x, paths, second_step_constraints)
-
         # Solve the model
         solution = m.solve()
-
         if conf.VERBOSE:
             m.report()
             print(solution.solve_status)
-
         # Get the solution as df
         df = solution.as_df()
-
         # Get al the paths
         paths = get_paths(df, nodes)
         len_paths = len(paths)
-
         if conf.VERBOSE:
             print('#paths: ' + str(len(paths)))
-
-        print(paths)
-
+            print(paths)
+        # check len paths
         if len_paths == 1:
             break
-
         # 1. Get capacities from continuous relaxing solution
         max_flow = MaximumFlowSolver(df, range_nodes, 0)
         # 2. Solve max flow using capacities
