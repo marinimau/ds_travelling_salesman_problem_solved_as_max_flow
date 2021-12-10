@@ -22,3 +22,5 @@ C = [
 
 
 optimal_cost = 2085;
+found_cost = 2238;
+elapsed_time = 2.117746;

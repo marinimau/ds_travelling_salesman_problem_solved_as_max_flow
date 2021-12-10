@@ -19,3 +19,5 @@ C = [
 ];
 
 optimal_cost = 291;
+found_cost = 291;
+elapsed_time = 0.8703570;
