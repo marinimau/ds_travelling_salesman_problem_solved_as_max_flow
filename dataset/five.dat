@@ -10,4 +10,4 @@ C = [
 
 optimal_cost = 19;
 found_cost = 19;
-elapsed_time: 0.37737;
+elapsed_time: 0.192072;

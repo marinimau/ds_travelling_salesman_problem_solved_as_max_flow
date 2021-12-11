@@ -38,7 +38,7 @@ from utils import *
 costs = []
 
 if __name__ == '__main__':
-    costs = load_costs_matrix("dataset/att48.dat")
+    costs = load_costs_matrix("dataset/basic.dat")
     # Number of nodes
     nodes = len(costs)
     # Range of the nodes
@@ -75,7 +75,7 @@ if __name__ == '__main__':
         if s is not None and t is not None:
             second_step_constraints.append([s, t])
             # add second step constraints
-            add_cut_constraint(m, x, paths, [[s, t]])
+            add_cut_constraint(m, x, paths, [[s, t]], range_nodes)
         # check len paths
         if len_paths == 1:
             break

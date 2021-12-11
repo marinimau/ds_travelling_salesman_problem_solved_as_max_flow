@@ -64,7 +64,7 @@ def add_basic_constraints(m, x, range_nodes):
     [m.add_constraint(x[i, i] == 0) for i in range_nodes]
 
 
-def add_cut_constraint(m, x, paths, constraints):
+def add_cut_constraint(m, x, paths, constraints, range_nodes):
     """
     Add cut constraints
     :param m: the model
@@ -75,7 +75,6 @@ def add_cut_constraint(m, x, paths, constraints):
     """
     for s, t in constraints:
         if s is not None and t is not None:
-            p1 = find_path_by_node(paths, s)
             p2 = find_path_by_node(paths, t)
-            m.add_constraint(m.sum([m.sum([x[i, j], x[j, i]]) for i in p1 for j in p2]) >= 2)
-            # m.add_constraint(m.sum([x[i, j] for i in p1 for j in p2]) >= 2)
+            nodes_without_p2 = list(set(range_nodes) - set(p2))
+            m.add_constraint(m.sum([m.sum([x[i, j], x[j, i]]) for i in nodes_without_p2 for j in p2]) >= 2)
