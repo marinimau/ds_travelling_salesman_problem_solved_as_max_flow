@@ -140,6 +140,6 @@ def print_formatted_path(path):
     :return:
     """
     path = path[0][0]
-    print([str(node+1) for node in path])
+    print([node+1 for node in path])
 
 

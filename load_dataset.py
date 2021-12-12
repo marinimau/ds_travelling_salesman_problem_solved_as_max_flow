@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 import numpy as np
 
-from conf import loading_params
+from conf import loading_params, VERBOSE
 
 
 def load_costs_matrix(filename):
@@ -53,7 +53,8 @@ def load_costs_matrix(filename):
         # Start reading values
         if "C = [" in line:
             read = True
-    print(costs)
+    if VERBOSE:
+        print(costs)
     return transform_to_symmetric(costs) if loading_params['symmetric_costs'] else costs
 
 
